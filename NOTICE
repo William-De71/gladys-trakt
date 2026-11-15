@@ -1,0 +1,17 @@
+Gladys Trakt integration
+Copyright 2026 William Deren
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Gladys Trakt uses Trakt but is not endorsed or certified by Trakt.
+
+The calendar, the shows in progress, what is being watched and the posters
+come from the Trakt API (https://developer.trakt.tv, version 2), read with the
+API app and the account of the user, under the Trakt API Use Policy
+(https://developer.trakt.tv/docs/api-use-policy). The posters are downloaded
+once and cached in the /data folder of the integration, as Trakt requires;
+they belong to their owners and none is part of this repository (the posters
+of the widget illustrations are drawn by docs/illustrations/gen.mjs).
+
+Trakt is a trademark of Trakt, Inc. This community integration is not
+affiliated with, endorsed or sponsored by Trakt.

@@ -1,0 +1,2928 @@
+{
+  "manifest_version": 1,
+  "type": "calendar",
+  "name": "Trakt",
+  "description": {
+    "en": "Your shows and movies from Trakt: calendar, what you watch, posters, scenes and widgets.",
+    "fr": "Vos séries et films Trakt : calendrier, lecture en cours, affiches, scènes et widgets.",
+    "de": "Ihre Serien und Filme von Trakt: Kalender, Wiedergabe, Poster, Szenen und Widgets.",
+    "es": "Sus series y películas de Trakt: calendario, reproducción, pósteres, escenas y widgets."
+  },
+  "version": "0.1.0",
+  "docker_image": "ghcr.io/william-de71/gladys-trakt:0.1.0",
+  "gladys_version": ">=5.3.0",
+  "categories": ["multimedia", "leisure"],
+  "keywords": [
+    "TV shows",
+    "séries",
+    "movies",
+    "films",
+    "episodes",
+    "watchlist",
+    "Plex",
+    "Kodi",
+    "Jellyfin",
+    "scrobble"
+  ],
+  "cover_image": "https://raw.githubusercontent.com/William-De71/gladys-trakt/main/cover.jpg",
+  "transports": ["cloud"],
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "1. Create your Trakt app",
+        "fr": "1. Créez votre app Trakt",
+        "de": "1. Erstellen Sie Ihre Trakt-App",
+        "es": "1. Cree su app de Trakt"
+      },
+      "description": {
+        "en": "Trakt asks every installation for its own free API app. On trakt.tv, open Settings → My Apps (Trakt asks for a verified GitHub account the first time), create an app (any name, redirect URI “urn:ietf:wg:oauth:2.0:oob”) and copy its Client ID below. No Client Secret is needed. Trakt deletes an app unused for 30 days: keep the integration running.",
+        "fr": "Trakt demande à chaque installation sa propre app d’API, gratuite. Sur trakt.tv, ouvrez Settings → My Apps (Trakt demande un compte GitHub vérifié la première fois), créez une app (nom libre, redirect URI « urn:ietf:wg:oauth:2.0:oob ») et copiez son Client ID ci-dessous. Aucun Client Secret n’est nécessaire. Trakt supprime une app inutilisée pendant 30 jours : laissez l’intégration tourner.",
+        "de": "Trakt verlangt für jede Installation eine eigene, kostenlose API-App. Öffnen Sie auf trakt.tv Settings → My Apps (beim ersten Mal verlangt Trakt ein verifiziertes GitHub-Konto), erstellen Sie eine App (beliebiger Name, Redirect-URI „urn:ietf:wg:oauth:2.0:oob“) und kopieren Sie die Client-ID nach unten. Ein Client Secret wird nicht benötigt. Trakt löscht eine 30 Tage ungenutzte App: Lassen Sie die Integration laufen.",
+        "es": "Trakt pide a cada instalación su propia app de API, gratuita. En trakt.tv, abra Settings → My Apps (la primera vez Trakt pide una cuenta de GitHub verificada), cree una app (cualquier nombre, redirect URI «urn:ietf:wg:oauth:2.0:oob») y copie su Client ID abajo. No hace falta Client Secret. Trakt elimina una app sin uso durante 30 días: deje la integración en marcha."
+      },
+      "links": [
+        {
+          "url": "https://app.trakt.tv/settings/apps",
+          "label": {
+            "en": "My Apps on Trakt",
+            "fr": "My Apps sur Trakt",
+            "de": "My Apps auf Trakt",
+            "es": "My Apps en Trakt"
+          }
+        },
+        {
+          "url": "https://developer.trakt.tv/docs/create-an-app",
+          "label": {
+            "en": "Trakt: create an app",
+            "fr": "Trakt : créer une app",
+            "de": "Trakt: App erstellen",
+            "es": "Trakt: crear una app"
+          }
+        },
+        {
+          "url": "https://github.com/William-De71/gladys-trakt/blob/main/docs/en.md",
+          "label": {
+            "en": "Documentation",
+            "fr": "Documentation (anglais)",
+            "de": "Dokumentation (Englisch)",
+            "es": "Documentación (inglés)"
+          }
+        },
+        {
+          "url": "https://github.com/William-De71/gladys-trakt/blob/main/docs/fr.md",
+          "label": {
+            "en": "Documentation (French)",
+            "fr": "Documentation",
+            "de": "Dokumentation (Französisch)",
+            "es": "Documentación (francés)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "client_id",
+      "type": "string",
+      "required": true,
+      "label": {
+        "en": "Client ID",
+        "fr": "Client ID",
+        "de": "Client ID",
+        "es": "Client ID"
+      },
+      "description": {
+        "en": "The Client ID of your Trakt app (64 characters). It identifies the app; it is not a password.",
+        "fr": "Le Client ID de votre app Trakt (64 caractères). Il identifie l’app ; ce n’est pas un mot de passe.",
+        "de": "Die Client-ID Ihrer Trakt-App (64 Zeichen). Sie identifiziert die App; sie ist kein Passwort.",
+        "es": "El Client ID de su app de Trakt (64 caracteres). Identifica la app; no es una contraseña."
+      },
+      "placeholder": {
+        "en": "0123456789abcdef…",
+        "fr": "0123456789abcdef…",
+        "de": "0123456789abcdef…",
+        "es": "0123456789abcdef…"
+      }
+    },
+    {
+      "key": "signin",
+      "type": "section",
+      "label": {
+        "en": "2. Link your Trakt account",
+        "fr": "2. Reliez votre compte Trakt",
+        "de": "2. Verknüpfen Sie Ihr Trakt-Konto",
+        "es": "2. Vincule su cuenta de Trakt"
+      },
+      "description": {
+        "en": "Save first, then click Connect: the Trakt activation page opens. Sign in and type the code shown in the connection status of this page. One Trakt account feeds the calendar of every user who enables the integration in “My calendars”. Development apps accept the owner of the app and the people invited to it.",
+        "fr": "Enregistrez d’abord, puis cliquez sur Connecter : la page d’activation de Trakt s’ouvre. Connectez-vous et saisissez le code affiché dans l’état de connexion de cette page. Un seul compte Trakt alimente le calendrier de chaque utilisateur qui active l’intégration dans « Mes calendriers ». Une app en développement accepte le propriétaire de l’app et les personnes qu’il y invite.",
+        "de": "Zuerst speichern, dann auf Verbinden klicken: Die Aktivierungsseite von Trakt öffnet sich. Melden Sie sich an und geben Sie den Code ein, der im Verbindungsstatus dieser Seite steht. Ein Trakt-Konto speist den Kalender aller Benutzer, die die Integration unter „Meine Kalender“ aktivieren. Entwicklungs-Apps akzeptieren den Besitzer der App und die eingeladenen Personen.",
+        "es": "Guarde primero y pulse Conectar: se abre la página de activación de Trakt. Inicie sesión y escriba el código mostrado en el estado de conexión de esta página. Una sola cuenta de Trakt alimenta el calendario de cada usuario que activa la integración en «Mis calendarios». Las apps en desarrollo aceptan al propietario de la app y a las personas invitadas."
+      }
+    },
+    {
+      "key": "trakt_account",
+      "type": "account_link",
+      "label": {
+        "en": "Trakt account",
+        "fr": "Compte Trakt",
+        "de": "Trakt-Konto",
+        "es": "Cuenta de Trakt"
+      }
+    },
+    {
+      "key": "content",
+      "type": "section",
+      "label": {
+        "en": "Calendar",
+        "fr": "Calendrier",
+        "de": "Kalender",
+        "es": "Calendario"
+      },
+      "description": {
+        "en": "Trakt lists the episodes of the shows the account watched or keeps in its watchlist, and the releases of the movies of its watchlist. Times are those of the first airing, converted to the timezone of Gladys. Titles stay as Trakt writes them.",
+        "fr": "Trakt liste les épisodes des séries que le compte a regardées ou garde dans sa watchlist, et les sorties des films de sa watchlist. Les heures sont celles de la première diffusion, converties dans le fuseau de Gladys. Les titres restent tels que Trakt les écrit.",
+        "de": "Trakt listet die Folgen der Serien, die das Konto gesehen hat oder auf der Watchlist führt, sowie die Starts der Filme der Watchlist. Die Zeiten sind die der Erstausstrahlung, umgerechnet in die Zeitzone von Gladys. Titel bleiben, wie Trakt sie schreibt.",
+        "es": "Trakt lista los episodios de las series que la cuenta ha visto o guarda en su watchlist, y los estrenos de las películas de su watchlist. Las horas son las de la primera emisión, convertidas a la zona horaria de Gladys. Los títulos quedan como los escribe Trakt."
+      }
+    },
+    {
+      "key": "kinds",
+      "type": "multi_select",
+      "required": true,
+      "label": {
+        "en": "What to follow",
+        "fr": "Ce qu’il faut suivre",
+        "de": "Was verfolgt wird",
+        "es": "Qué seguir"
+      },
+      "description": {
+        "en": "The calendar, the widgets and the scenes only see these.",
+        "fr": "Le calendrier, les widgets et les scènes ne voient que ceux-ci.",
+        "de": "Kalender, Widgets und Szenen sehen nur diese.",
+        "es": "El calendario, los widgets y las escenas solo ven estos."
+      },
+      "options": [
+        {
+          "value": "episode",
+          "label": {
+            "en": "Episodes of shows",
+            "fr": "Épisodes de séries",
+            "de": "Serienfolgen",
+            "es": "Episodios de series"
+          }
+        },
+        {
+          "value": "movie",
+          "label": {
+            "en": "Movie releases",
+            "fr": "Sorties de films",
+            "de": "Filmstarts",
+            "es": "Estrenos de películas"
+          }
+        },
+        {
+          "value": "streaming",
+          "label": {
+            "en": "Streaming releases of movies",
+            "fr": "Sorties de films en streaming",
+            "de": "Streaming-Starts von Filmen",
+            "es": "Estrenos de películas en streaming"
+          }
+        }
+      ],
+      "default": ["episode", "movie", "streaming"]
+    },
+    {
+      "key": "days_ahead",
+      "type": "select",
+      "label": {
+        "en": "Days read ahead",
+        "fr": "Jours lus à l’avance",
+        "de": "Im Voraus gelesene Tage",
+        "es": "Días leídos por adelantado"
+      },
+      "options": [
+        {
+          "value": "30",
+          "label": {
+            "en": "30 days",
+            "fr": "30 jours",
+            "de": "30 Tage",
+            "es": "30 días"
+          }
+        },
+        {
+          "value": "60",
+          "label": {
+            "en": "60 days",
+            "fr": "60 jours",
+            "de": "60 Tage",
+            "es": "60 días"
+          }
+        },
+        {
+          "value": "90",
+          "label": {
+            "en": "90 days",
+            "fr": "90 jours",
+            "de": "90 Tage",
+            "es": "90 días"
+          }
+        }
+      ],
+      "default": "60"
+    },
+    {
+      "key": "specials",
+      "type": "boolean",
+      "default": false,
+      "label": {
+        "en": "Keep the specials",
+        "fr": "Garder les épisodes spéciaux",
+        "de": "Specials behalten",
+        "es": "Conservar los especiales"
+      },
+      "description": {
+        "en": "Episodes of “season 0”: bonus, making-of, recaps.",
+        "fr": "Épisodes de la « saison 0 » : bonus, making-of, résumés.",
+        "de": "Folgen der „Staffel 0“: Bonus, Making-of, Rückblicke.",
+        "es": "Episodios de la «temporada 0»: extras, making-of, resúmenes."
+      }
+    },
+    {
+      "key": "options",
+      "type": "section",
+      "label": {
+        "en": "Reading and scenes",
+        "fr": "Lecture et scènes",
+        "de": "Abfrage und Szenen",
+        "es": "Lectura y escenas"
+      },
+      "description": {
+        "en": "A reading takes about ten requests; “Now watching” adds one request a minute. Trakt allows 500 requests per 5 minutes.",
+        "fr": "Une lecture prend une dizaine de requêtes ; « Lecture en cours » en ajoute une par minute. Trakt autorise 500 requêtes par 5 minutes.",
+        "de": "Eine Abfrage braucht etwa zehn Anfragen; „Aktuelle Wiedergabe“ fügt eine pro Minute hinzu. Trakt erlaubt 500 Anfragen pro 5 Minuten.",
+        "es": "Una lectura usa unas diez peticiones; «Reproducción en curso» añade una por minuto. Trakt permite 500 peticiones cada 5 minutos."
+      }
+    },
+    {
+      "key": "watching",
+      "type": "boolean",
+      "default": true,
+      "label": {
+        "en": "Now watching",
+        "fr": "Lecture en cours",
+        "de": "Aktuelle Wiedergabe",
+        "es": "Reproducción en curso"
+      },
+      "description": {
+        "en": "Asks Trakt every minute what the account is watching (sent by Plex, Kodi, Jellyfin, Infuse, the Trakt apps…): “playback started / stopped” triggers and the “Now watching” widget.",
+        "fr": "Demande chaque minute à Trakt ce que le compte regarde (envoyé par Plex, Kodi, Jellyfin, Infuse, les applis Trakt…) : déclencheurs « lecture commencée / arrêtée » et widget « Lecture en cours ».",
+        "de": "Fragt Trakt jede Minute, was das Konto ansieht (gemeldet von Plex, Kodi, Jellyfin, Infuse, den Trakt-Apps…): Auslöser „Wiedergabe gestartet / gestoppt“ und Widget „Aktuelle Wiedergabe“.",
+        "es": "Pregunta a Trakt cada minuto qué está viendo la cuenta (enviado por Plex, Kodi, Jellyfin, Infuse, las apps de Trakt…): disparadores «reproducción iniciada / detenida» y widget «Reproducción en curso»."
+      }
+    },
+    {
+      "key": "interval_hours",
+      "type": "select",
+      "label": {
+        "en": "Reading of the calendar",
+        "fr": "Lecture du calendrier",
+        "de": "Abfrage des Kalenders",
+        "es": "Lectura del calendario"
+      },
+      "options": [
+        {
+          "value": "1",
+          "label": {
+            "en": "Every hour",
+            "fr": "Toutes les heures",
+            "de": "Jede Stunde",
+            "es": "Cada hora"
+          }
+        },
+        {
+          "value": "3",
+          "label": {
+            "en": "Every 3 hours",
+            "fr": "Toutes les 3 heures",
+            "de": "Alle 3 Stunden",
+            "es": "Cada 3 horas"
+          }
+        },
+        {
+          "value": "6",
+          "label": {
+            "en": "Every 6 hours",
+            "fr": "Toutes les 6 heures",
+            "de": "Alle 6 Stunden",
+            "es": "Cada 6 horas"
+          }
+        },
+        {
+          "value": "12",
+          "label": {
+            "en": "Every 12 hours",
+            "fr": "Toutes les 12 heures",
+            "de": "Alle 12 Stunden",
+            "es": "Cada 12 horas"
+          }
+        }
+      ],
+      "default": "3"
+    },
+    {
+      "key": "notify_hour",
+      "type": "number",
+      "min": 0,
+      "max": 23,
+      "default": 9,
+      "label": {
+        "en": "Hour of the “release day” trigger",
+        "fr": "Heure du déclencheur « jour de sortie »",
+        "de": "Uhrzeit des Auslösers „Erscheinungstag“",
+        "es": "Hora del disparador «día de estreno»"
+      },
+      "description": {
+        "en": "From 0 to 23, local time: the scenes run at that hour on the day (or the day before, a week before).",
+        "fr": "De 0 à 23, heure locale : les scènes se lancent à cette heure le jour même (ou la veille, une semaine avant).",
+        "de": "Von 0 bis 23, Ortszeit: Die Szenen laufen zu dieser Stunde am Tag selbst (oder am Vortag, eine Woche vorher).",
+        "es": "De 0 a 23, hora local: las escenas se ejecutan a esa hora el mismo día (o la víspera, una semana antes)."
+      },
+      "placeholder": {
+        "en": "9",
+        "fr": "9",
+        "de": "9",
+        "es": "9"
+      }
+    },
+    {
+      "key": "language",
+      "type": "select",
+      "label": {
+        "en": "Language of the scene texts",
+        "fr": "Langue des textes des scènes",
+        "de": "Sprache der Szenentexte",
+        "es": "Idioma de los textos de las escenas"
+      },
+      "description": {
+        "en": "For the ready-made sentences of the scenes and the messages of the buttons. Automatic: the language of the last dashboard shown.",
+        "fr": "Pour les phrases prêtes des scènes et les messages des boutons. Automatique : la langue du dernier tableau de bord affiché.",
+        "de": "Für die fertigen Sätze der Szenen und die Meldungen der Schaltflächen. Automatisch: die Sprache des zuletzt angezeigten Dashboards.",
+        "es": "Para las frases listas de las escenas y los mensajes de los botones. Automático: el idioma del último panel mostrado."
+      },
+      "options": [
+        {
+          "value": "auto",
+          "label": {
+            "en": "Automatic",
+            "fr": "Automatique",
+            "de": "Automatisch",
+            "es": "Automático"
+          }
+        },
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais",
+            "de": "Englisch",
+            "es": "Inglés"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français",
+            "de": "Französisch",
+            "es": "Francés"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "German",
+            "fr": "Allemand",
+            "de": "Deutsch",
+            "es": "Alemán"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Spanish",
+            "fr": "Espagnol",
+            "de": "Spanisch",
+            "es": "Español"
+          }
+        }
+      ],
+      "default": "auto"
+    }
+  ],
+  "actions": [
+    {
+      "key": "refresh",
+      "timeout_seconds": 120,
+      "label": {
+        "en": "Read again now",
+        "fr": "Relire maintenant",
+        "de": "Jetzt neu lesen",
+        "es": "Leer de nuevo ahora"
+      },
+      "description": {
+        "en": "Reads the Trakt account without waiting for the next reading.",
+        "fr": "Relit le compte Trakt sans attendre la prochaine lecture.",
+        "de": "Liest das Trakt-Konto, ohne auf die nächste Abfrage zu warten.",
+        "es": "Lee la cuenta de Trakt sin esperar a la próxima lectura."
+      }
+    },
+    {
+      "key": "disconnect",
+      "timeout_seconds": 30,
+      "label": {
+        "en": "Disconnect the Trakt account",
+        "fr": "Déconnecter le compte Trakt",
+        "de": "Trakt-Konto trennen",
+        "es": "Desconectar la cuenta de Trakt"
+      },
+      "description": {
+        "en": "Forgets the tokens and what was read, and empties the calendars. Connect links an account again.",
+        "fr": "Oublie les jetons et ce qui avait été lu, et vide les calendriers. Connecter relie de nouveau un compte.",
+        "de": "Verwirft die Tokens und das Gelesene und leert die Kalender. Verbinden verknüpft erneut ein Konto.",
+        "es": "Olvida los tokens y lo leído, y vacía los calendarios. Conectar vuelve a vincular una cuenta."
+      }
+    }
+  ],
+  "widgets": [
+    {
+      "key": "upcoming",
+      "icon": "calendar",
+      "label": {
+        "en": "Upcoming shows and movies",
+        "fr": "Séries et films à venir",
+        "de": "Kommende Serien und Filme",
+        "es": "Próximas series y películas"
+      },
+      "description": {
+        "en": "The next episodes and releases of your Trakt calendar, with day, time and poster.",
+        "fr": "Les prochains épisodes et sorties de votre calendrier Trakt, avec jour, heure et affiche.",
+        "de": "Die nächsten Folgen und Starts Ihres Trakt-Kalenders, mit Tag, Uhrzeit und Poster.",
+        "es": "Los próximos episodios y estrenos de su calendario de Trakt, con día, hora y póster."
+      },
+      "settings": [
+        {
+          "key": "kinds",
+          "type": "multi_select",
+          "label": {
+            "en": "Kinds",
+            "fr": "Types",
+            "de": "Arten",
+            "es": "Tipos"
+          },
+          "description": {
+            "en": "Empty: every kind kept in the configuration.",
+            "fr": "Vide : tous les types gardés dans la configuration.",
+            "de": "Leer: alle in der Konfiguration behaltenen Arten.",
+            "es": "Vacío: todos los tipos conservados en la configuración."
+          },
+          "options": [
+            {
+              "value": "episode",
+              "label": {
+                "en": "Episodes of shows",
+                "fr": "Épisodes de séries",
+                "de": "Serienfolgen",
+                "es": "Episodios de series"
+              }
+            },
+            {
+              "value": "movie",
+              "label": {
+                "en": "Movie releases",
+                "fr": "Sorties de films",
+                "de": "Filmstarts",
+                "es": "Estrenos de películas"
+              }
+            },
+            {
+              "value": "streaming",
+              "label": {
+                "en": "Streaming releases of movies",
+                "fr": "Sorties de films en streaming",
+                "de": "Streaming-Starts von Filmen",
+                "es": "Estrenos de películas en streaming"
+              }
+            }
+          ]
+        },
+        {
+          "key": "count",
+          "type": "select",
+          "label": {
+            "en": "Items listed",
+            "fr": "Éléments listés",
+            "de": "Aufgelistete Einträge",
+            "es": "Elementos listados"
+          },
+          "options": [
+            {
+              "value": "3",
+              "label": {
+                "en": "3",
+                "fr": "3",
+                "de": "3",
+                "es": "3"
+              }
+            },
+            {
+              "value": "5",
+              "label": {
+                "en": "5",
+                "fr": "5",
+                "de": "5",
+                "es": "5"
+              }
+            },
+            {
+              "value": "8",
+              "label": {
+                "en": "8",
+                "fr": "8",
+                "de": "8",
+                "es": "8"
+              }
+            }
+          ],
+          "default": "5"
+        }
+      ]
+    },
+    {
+      "key": "up_next",
+      "icon": "tv",
+      "label": {
+        "en": "Shows in progress",
+        "fr": "Séries en cours",
+        "de": "Laufende Serien",
+        "es": "Series en curso"
+      },
+      "description": {
+        "en": "The next episode to watch of each show you follow, and how many you watched.",
+        "fr": "Le prochain épisode à voir de chaque série suivie, et combien vous en avez vu.",
+        "de": "Die nächste Folge jeder verfolgten Serie und wie viele Sie gesehen haben.",
+        "es": "El próximo episodio por ver de cada serie seguida y cuántos ha visto."
+      },
+      "settings": [
+        {
+          "key": "count",
+          "type": "select",
+          "label": {
+            "en": "Shows listed",
+            "fr": "Séries listées",
+            "de": "Aufgelistete Serien",
+            "es": "Series listadas"
+          },
+          "options": [
+            {
+              "value": "3",
+              "label": {
+                "en": "3",
+                "fr": "3",
+                "de": "3",
+                "es": "3"
+              }
+            },
+            {
+              "value": "5",
+              "label": {
+                "en": "5",
+                "fr": "5",
+                "de": "5",
+                "es": "5"
+              }
+            },
+            {
+              "value": "8",
+              "label": {
+                "en": "8",
+                "fr": "8",
+                "de": "8",
+                "es": "8"
+              }
+            }
+          ],
+          "default": "5"
+        }
+      ]
+    },
+    {
+      "key": "now_watching",
+      "icon": "play",
+      "label": {
+        "en": "Now watching",
+        "fr": "Lecture en cours",
+        "de": "Aktuelle Wiedergabe",
+        "es": "Reproducción en curso"
+      },
+      "description": {
+        "en": "What the Trakt account is watching: time left, start, end and poster.",
+        "fr": "Ce que le compte Trakt regarde : temps restant, début, fin et affiche.",
+        "de": "Was das Trakt-Konto gerade ansieht: Restzeit, Beginn, Ende und Poster.",
+        "es": "Lo que la cuenta de Trakt está viendo: tiempo restante, inicio, fin y póster."
+      }
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "item_announced",
+      "label": {
+        "en": "Trakt: new in the calendar",
+        "fr": "Trakt : nouveau dans le calendrier",
+        "de": "Trakt: neu im Kalender",
+        "es": "Trakt: nuevo en el calendario"
+      },
+      "description": {
+        "en": "An episode or a movie appeared in the days already read: a renewed show, a new date, a title added to the watchlist on Trakt.",
+        "fr": "Un épisode ou un film est apparu dans les jours déjà lus : série renouvelée, nouvelle date, titre ajouté à la watchlist sur Trakt.",
+        "de": "Eine Folge oder ein Film ist in den bereits gelesenen Tagen aufgetaucht: verlängerte Serie, neuer Termin, auf Trakt zur Watchlist hinzugefügter Titel.",
+        "es": "Ha aparecido un episodio o una película en los días ya leídos: serie renovada, nueva fecha, título añadido a la watchlist en Trakt."
+      },
+      "fields": [
+        {
+          "key": "kind",
+          "type": "multi_select",
+          "label": {
+            "en": "Kinds",
+            "fr": "Types",
+            "de": "Arten",
+            "es": "Tipos"
+          },
+          "description": {
+            "en": "Empty: every kind kept in the configuration.",
+            "fr": "Vide : tous les types gardés dans la configuration.",
+            "de": "Leer: alle in der Konfiguration behaltenen Arten.",
+            "es": "Vacío: todos los tipos conservados en la configuración."
+          },
+          "options": [
+            {
+              "value": "episode",
+              "label": {
+                "en": "Episodes of shows",
+                "fr": "Épisodes de séries",
+                "de": "Serienfolgen",
+                "es": "Episodios de series"
+              }
+            },
+            {
+              "value": "movie",
+              "label": {
+                "en": "Movie releases",
+                "fr": "Sorties de films",
+                "de": "Filmstarts",
+                "es": "Estrenos de películas"
+              }
+            },
+            {
+              "value": "streaming",
+              "label": {
+                "en": "Streaming releases of movies",
+                "fr": "Sorties de films en streaming",
+                "de": "Streaming-Starts von Filmen",
+                "es": "Estrenos de películas en streaming"
+              }
+            }
+          ]
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "label": {
+            "en": "Show or movie",
+            "fr": "Série ou film",
+            "de": "Serie oder Film",
+            "es": "Serie o película"
+          },
+          "description": {
+            "en": "Exactly as Trakt writes it (case-sensitive). Empty: any title.",
+            "fr": "Exactement comme Trakt l’écrit (majuscules comprises). Vide : tous les titres.",
+            "de": "Genau wie Trakt es schreibt (Groß-/Kleinschreibung beachten). Leer: alle Titel.",
+            "es": "Exactamente como lo escribe Trakt (distingue mayúsculas). Vacío: cualquier título."
+          },
+          "placeholder": {
+            "en": "Severance",
+            "fr": "Severance",
+            "de": "Severance",
+            "es": "Severance"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "full_title",
+          "type": "string",
+          "label": {
+            "en": "Full title",
+            "fr": "Titre complet",
+            "de": "Vollständiger Titel",
+            "es": "Título completo"
+          },
+          "description": {
+            "en": "“Severance S02E05 – Trojan’s Horse”",
+            "fr": "“Severance S02E05 – Trojan’s Horse”",
+            "de": "“Severance S02E05 – Trojan’s Horse”",
+            "es": "“Severance S02E05 – Trojan’s Horse”"
+          }
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "label": {
+            "en": "Show or movie",
+            "fr": "Série ou film",
+            "de": "Serie oder Film",
+            "es": "Serie o película"
+          }
+        },
+        {
+          "key": "episode",
+          "type": "string",
+          "label": {
+            "en": "Episode code (S02E05)",
+            "fr": "Code de l’épisode (S02E05)",
+            "de": "Folgencode (S02E05)",
+            "es": "Código del episodio (S02E05)"
+          }
+        },
+        {
+          "key": "episode_title",
+          "type": "string",
+          "label": {
+            "en": "Episode title",
+            "fr": "Titre de l’épisode",
+            "de": "Folgentitel",
+            "es": "Título del episodio"
+          }
+        },
+        {
+          "key": "kind",
+          "type": "string",
+          "label": {
+            "en": "Kind (key)",
+            "fr": "Type (clé)",
+            "de": "Art (Schlüssel)",
+            "es": "Tipo (clave)"
+          },
+          "description": {
+            "en": "episode, movie, streaming",
+            "fr": "episode, movie, streaming",
+            "de": "episode, movie, streaming",
+            "es": "episode, movie, streaming"
+          }
+        },
+        {
+          "key": "kind_name",
+          "type": "string",
+          "label": {
+            "en": "Kind",
+            "fr": "Type",
+            "de": "Art",
+            "es": "Tipo"
+          }
+        },
+        {
+          "key": "season",
+          "type": "number",
+          "label": {
+            "en": "Season",
+            "fr": "Saison",
+            "de": "Staffel",
+            "es": "Temporada"
+          }
+        },
+        {
+          "key": "number",
+          "type": "number",
+          "label": {
+            "en": "Episode number",
+            "fr": "Numéro de l’épisode",
+            "de": "Folgennummer",
+            "es": "Número del episodio"
+          }
+        },
+        {
+          "key": "premiere",
+          "type": "boolean",
+          "label": {
+            "en": "Premiere of a show or season",
+            "fr": "Première d’une série ou saison",
+            "de": "Premiere einer Serie oder Staffel",
+            "es": "Estreno de serie o temporada"
+          }
+        },
+        {
+          "key": "finale",
+          "type": "boolean",
+          "label": {
+            "en": "Finale of a show or season",
+            "fr": "Final d’une série ou saison",
+            "de": "Finale einer Serie oder Staffel",
+            "es": "Final de serie o temporada"
+          }
+        },
+        {
+          "key": "date",
+          "type": "string",
+          "label": {
+            "en": "Day (YYYY-MM-DD)",
+            "fr": "Jour (AAAA-MM-JJ)",
+            "de": "Tag (JJJJ-MM-TT)",
+            "es": "Día (AAAA-MM-DD)"
+          }
+        },
+        {
+          "key": "time",
+          "type": "string",
+          "label": {
+            "en": "Local airing time",
+            "fr": "Heure locale de diffusion",
+            "de": "Lokale Sendezeit",
+            "es": "Hora local de emisión"
+          }
+        },
+        {
+          "key": "date_text",
+          "type": "string",
+          "label": {
+            "en": "Day as a text",
+            "fr": "Jour en toutes lettres",
+            "de": "Tag als Text",
+            "es": "Día en texto"
+          }
+        },
+        {
+          "key": "days",
+          "type": "number",
+          "label": {
+            "en": "Days until then",
+            "fr": "Jours restants",
+            "de": "Tage bis dahin",
+            "es": "Días restantes"
+          }
+        },
+        {
+          "key": "network",
+          "type": "string",
+          "label": {
+            "en": "Network of the show",
+            "fr": "Chaîne de la série",
+            "de": "Sender der Serie",
+            "es": "Cadena de la serie"
+          }
+        },
+        {
+          "key": "url",
+          "type": "string",
+          "label": {
+            "en": "Trakt page",
+            "fr": "Page Trakt",
+            "de": "Trakt-Seite",
+            "es": "Página de Trakt"
+          }
+        },
+        {
+          "key": "text",
+          "type": "string",
+          "label": {
+            "en": "Ready sentence",
+            "fr": "Phrase prête",
+            "de": "Fertiger Satz",
+            "es": "Frase lista"
+          },
+          "description": {
+            "en": "In the language of the configuration.",
+            "fr": "Dans la langue de la configuration.",
+            "de": "In der Sprache der Konfiguration.",
+            "es": "En el idioma de la configuración."
+          }
+        }
+      ]
+    },
+    {
+      "key": "release_day",
+      "label": {
+        "en": "Trakt: release day",
+        "fr": "Trakt : jour de sortie",
+        "de": "Trakt: Erscheinungstag",
+        "es": "Trakt: día de estreno"
+      },
+      "description": {
+        "en": "An episode airs or a movie comes out today, tomorrow or in a week, at the hour set in the configuration.",
+        "fr": "Un épisode est diffusé ou un film sort aujourd’hui, demain ou dans une semaine, à l’heure réglée dans la configuration.",
+        "de": "Eine Folge läuft oder ein Film erscheint heute, morgen oder in einer Woche, zur in der Konfiguration eingestellten Stunde.",
+        "es": "Un episodio se emite o una película se estrena hoy, mañana o dentro de una semana, a la hora fijada en la configuración."
+      },
+      "fields": [
+        {
+          "key": "lead",
+          "type": "select",
+          "required": true,
+          "default": "0",
+          "label": {
+            "en": "When",
+            "fr": "Quand",
+            "de": "Wann",
+            "es": "Cuándo"
+          },
+          "options": [
+            {
+              "value": "0",
+              "label": {
+                "en": "The day itself",
+                "fr": "Le jour même",
+                "de": "Am Tag selbst",
+                "es": "El mismo día"
+              }
+            },
+            {
+              "value": "1",
+              "label": {
+                "en": "The day before",
+                "fr": "La veille",
+                "de": "Am Vortag",
+                "es": "La víspera"
+              }
+            },
+            {
+              "value": "7",
+              "label": {
+                "en": "A week before",
+                "fr": "Une semaine avant",
+                "de": "Eine Woche vorher",
+                "es": "Una semana antes"
+              }
+            }
+          ]
+        },
+        {
+          "key": "kind",
+          "type": "multi_select",
+          "label": {
+            "en": "Kinds",
+            "fr": "Types",
+            "de": "Arten",
+            "es": "Tipos"
+          },
+          "description": {
+            "en": "Empty: every kind kept in the configuration.",
+            "fr": "Vide : tous les types gardés dans la configuration.",
+            "de": "Leer: alle in der Konfiguration behaltenen Arten.",
+            "es": "Vacío: todos los tipos conservados en la configuración."
+          },
+          "options": [
+            {
+              "value": "episode",
+              "label": {
+                "en": "Episodes of shows",
+                "fr": "Épisodes de séries",
+                "de": "Serienfolgen",
+                "es": "Episodios de series"
+              }
+            },
+            {
+              "value": "movie",
+              "label": {
+                "en": "Movie releases",
+                "fr": "Sorties de films",
+                "de": "Filmstarts",
+                "es": "Estrenos de películas"
+              }
+            },
+            {
+              "value": "streaming",
+              "label": {
+                "en": "Streaming releases of movies",
+                "fr": "Sorties de films en streaming",
+                "de": "Streaming-Starts von Filmen",
+                "es": "Estrenos de películas en streaming"
+              }
+            }
+          ]
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "label": {
+            "en": "Show or movie",
+            "fr": "Série ou film",
+            "de": "Serie oder Film",
+            "es": "Serie o película"
+          },
+          "description": {
+            "en": "Exactly as Trakt writes it (case-sensitive). Empty: any title.",
+            "fr": "Exactement comme Trakt l’écrit (majuscules comprises). Vide : tous les titres.",
+            "de": "Genau wie Trakt es schreibt (Groß-/Kleinschreibung beachten). Leer: alle Titel.",
+            "es": "Exactamente como lo escribe Trakt (distingue mayúsculas). Vacío: cualquier título."
+          },
+          "placeholder": {
+            "en": "Severance",
+            "fr": "Severance",
+            "de": "Severance",
+            "es": "Severance"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "full_title",
+          "type": "string",
+          "label": {
+            "en": "Full title",
+            "fr": "Titre complet",
+            "de": "Vollständiger Titel",
+            "es": "Título completo"
+          },
+          "description": {
+            "en": "“Severance S02E05 – Trojan’s Horse”",
+            "fr": "“Severance S02E05 – Trojan’s Horse”",
+            "de": "“Severance S02E05 – Trojan’s Horse”",
+            "es": "“Severance S02E05 – Trojan’s Horse”"
+          }
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "label": {
+            "en": "Show or movie",
+            "fr": "Série ou film",
+            "de": "Serie oder Film",
+            "es": "Serie o película"
+          }
+        },
+        {
+          "key": "episode",
+          "type": "string",
+          "label": {
+            "en": "Episode code (S02E05)",
+            "fr": "Code de l’épisode (S02E05)",
+            "de": "Folgencode (S02E05)",
+            "es": "Código del episodio (S02E05)"
+          }
+        },
+        {
+          "key": "episode_title",
+          "type": "string",
+          "label": {
+            "en": "Episode title",
+            "fr": "Titre de l’épisode",
+            "de": "Folgentitel",
+            "es": "Título del episodio"
+          }
+        },
+        {
+          "key": "kind",
+          "type": "string",
+          "label": {
+            "en": "Kind (key)",
+            "fr": "Type (clé)",
+            "de": "Art (Schlüssel)",
+            "es": "Tipo (clave)"
+          },
+          "description": {
+            "en": "episode, movie, streaming",
+            "fr": "episode, movie, streaming",
+            "de": "episode, movie, streaming",
+            "es": "episode, movie, streaming"
+          }
+        },
+        {
+          "key": "kind_name",
+          "type": "string",
+          "label": {
+            "en": "Kind",
+            "fr": "Type",
+            "de": "Art",
+            "es": "Tipo"
+          }
+        },
+        {
+          "key": "season",
+          "type": "number",
+          "label": {
+            "en": "Season",
+            "fr": "Saison",
+            "de": "Staffel",
+            "es": "Temporada"
+          }
+        },
+        {
+          "key": "number",
+          "type": "number",
+          "label": {
+            "en": "Episode number",
+            "fr": "Numéro de l’épisode",
+            "de": "Folgennummer",
+            "es": "Número del episodio"
+          }
+        },
+        {
+          "key": "premiere",
+          "type": "boolean",
+          "label": {
+            "en": "Premiere of a show or season",
+            "fr": "Première d’une série ou saison",
+            "de": "Premiere einer Serie oder Staffel",
+            "es": "Estreno de serie o temporada"
+          }
+        },
+        {
+          "key": "finale",
+          "type": "boolean",
+          "label": {
+            "en": "Finale of a show or season",
+            "fr": "Final d’une série ou saison",
+            "de": "Finale einer Serie oder Staffel",
+            "es": "Final de serie o temporada"
+          }
+        },
+        {
+          "key": "date",
+          "type": "string",
+          "label": {
+            "en": "Day (YYYY-MM-DD)",
+            "fr": "Jour (AAAA-MM-JJ)",
+            "de": "Tag (JJJJ-MM-TT)",
+            "es": "Día (AAAA-MM-DD)"
+          }
+        },
+        {
+          "key": "time",
+          "type": "string",
+          "label": {
+            "en": "Local airing time",
+            "fr": "Heure locale de diffusion",
+            "de": "Lokale Sendezeit",
+            "es": "Hora local de emisión"
+          }
+        },
+        {
+          "key": "date_text",
+          "type": "string",
+          "label": {
+            "en": "Day as a text",
+            "fr": "Jour en toutes lettres",
+            "de": "Tag als Text",
+            "es": "Día en texto"
+          }
+        },
+        {
+          "key": "days",
+          "type": "number",
+          "label": {
+            "en": "Days until then",
+            "fr": "Jours restants",
+            "de": "Tage bis dahin",
+            "es": "Días restantes"
+          }
+        },
+        {
+          "key": "network",
+          "type": "string",
+          "label": {
+            "en": "Network of the show",
+            "fr": "Chaîne de la série",
+            "de": "Sender der Serie",
+            "es": "Cadena de la serie"
+          }
+        },
+        {
+          "key": "url",
+          "type": "string",
+          "label": {
+            "en": "Trakt page",
+            "fr": "Page Trakt",
+            "de": "Trakt-Seite",
+            "es": "Página de Trakt"
+          }
+        },
+        {
+          "key": "text",
+          "type": "string",
+          "label": {
+            "en": "Ready sentence",
+            "fr": "Phrase prête",
+            "de": "Fertiger Satz",
+            "es": "Frase lista"
+          },
+          "description": {
+            "en": "In the language of the configuration.",
+            "fr": "Dans la langue de la configuration.",
+            "de": "In der Sprache der Konfiguration.",
+            "es": "En el idioma de la configuración."
+          }
+        },
+        {
+          "key": "lead",
+          "type": "string",
+          "label": {
+            "en": "Days ahead",
+            "fr": "Jours d’avance",
+            "de": "Tage im Voraus",
+            "es": "Días de antelación"
+          },
+          "description": {
+            "en": "0, 1, 7",
+            "fr": "0, 1, 7",
+            "de": "0, 1, 7",
+            "es": "0, 1, 7"
+          }
+        }
+      ]
+    },
+    {
+      "key": "episode_airing",
+      "label": {
+        "en": "Trakt: an episode airs now",
+        "fr": "Trakt : un épisode est diffusé",
+        "de": "Trakt: eine Folge läuft jetzt",
+        "es": "Trakt: se emite un episodio"
+      },
+      "description": {
+        "en": "The airing time of an episode of your calendar just passed (within ten minutes).",
+        "fr": "L’heure de diffusion d’un épisode de votre calendrier vient de passer (dans les dix minutes).",
+        "de": "Die Sendezeit einer Folge Ihres Kalenders ist gerade verstrichen (innerhalb von zehn Minuten).",
+        "es": "La hora de emisión de un episodio de su calendario acaba de pasar (en los diez minutos siguientes)."
+      },
+      "fields": [
+        {
+          "key": "title",
+          "type": "string",
+          "label": {
+            "en": "Show or movie",
+            "fr": "Série ou film",
+            "de": "Serie oder Film",
+            "es": "Serie o película"
+          },
+          "description": {
+            "en": "The show, exactly as Trakt writes it (case-sensitive). Empty: any show.",
+            "fr": "La série, exactement comme Trakt l’écrit (majuscules comprises). Vide : toutes les séries.",
+            "de": "Die Serie, genau wie Trakt sie schreibt (Groß-/Kleinschreibung beachten). Leer: alle Serien.",
+            "es": "La serie, exactamente como la escribe Trakt (distingue mayúsculas). Vacío: cualquier serie."
+          },
+          "placeholder": {
+            "en": "Severance",
+            "fr": "Severance",
+            "de": "Severance",
+            "es": "Severance"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "full_title",
+          "type": "string",
+          "label": {
+            "en": "Full title",
+            "fr": "Titre complet",
+            "de": "Vollständiger Titel",
+            "es": "Título completo"
+          },
+          "description": {
+            "en": "“Severance S02E05 – Trojan’s Horse”",
+            "fr": "“Severance S02E05 – Trojan’s Horse”",
+            "de": "“Severance S02E05 – Trojan’s Horse”",
+            "es": "“Severance S02E05 – Trojan’s Horse”"
+          }
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "label": {
+            "en": "Show or movie",
+            "fr": "Série ou film",
+            "de": "Serie oder Film",
+            "es": "Serie o película"
+          }
+        },
+        {
+          "key": "episode",
+          "type": "string",
+          "label": {
+            "en": "Episode code (S02E05)",
+            "fr": "Code de l’épisode (S02E05)",
+            "de": "Folgencode (S02E05)",
+            "es": "Código del episodio (S02E05)"
+          }
+        },
+        {
+          "key": "episode_title",
+          "type": "string",
+          "label": {
+            "en": "Episode title",
+            "fr": "Titre de l’épisode",
+            "de": "Folgentitel",
+            "es": "Título del episodio"
+          }
+        },
+        {
+          "key": "kind",
+          "type": "string",
+          "label": {
+            "en": "Kind (key)",
+            "fr": "Type (clé)",
+            "de": "Art (Schlüssel)",
+            "es": "Tipo (clave)"
+          },
+          "description": {
+            "en": "episode, movie, streaming",
+            "fr": "episode, movie, streaming",
+            "de": "episode, movie, streaming",
+            "es": "episode, movie, streaming"
+          }
+        },
+        {
+          "key": "kind_name",
+          "type": "string",
+          "label": {
+            "en": "Kind",
+            "fr": "Type",
+            "de": "Art",
+            "es": "Tipo"
+          }
+        },
+        {
+          "key": "season",
+          "type": "number",
+          "label": {
+            "en": "Season",
+            "fr": "Saison",
+            "de": "Staffel",
+            "es": "Temporada"
+          }
+        },
+        {
+          "key": "number",
+          "type": "number",
+          "label": {
+            "en": "Episode number",
+            "fr": "Numéro de l’épisode",
+            "de": "Folgennummer",
+            "es": "Número del episodio"
+          }
+        },
+        {
+          "key": "premiere",
+          "type": "boolean",
+          "label": {
+            "en": "Premiere of a show or season",
+            "fr": "Première d’une série ou saison",
+            "de": "Premiere einer Serie oder Staffel",
+            "es": "Estreno de serie o temporada"
+          }
+        },
+        {
+          "key": "finale",
+          "type": "boolean",
+          "label": {
+            "en": "Finale of a show or season",
+            "fr": "Final d’une série ou saison",
+            "de": "Finale einer Serie oder Staffel",
+            "es": "Final de serie o temporada"
+          }
+        },
+        {
+          "key": "date",
+          "type": "string",
+          "label": {
+            "en": "Day (YYYY-MM-DD)",
+            "fr": "Jour (AAAA-MM-JJ)",
+            "de": "Tag (JJJJ-MM-TT)",
+            "es": "Día (AAAA-MM-DD)"
+          }
+        },
+        {
+          "key": "time",
+          "type": "string",
+          "label": {
+            "en": "Local airing time",
+            "fr": "Heure locale de diffusion",
+            "de": "Lokale Sendezeit",
+            "es": "Hora local de emisión"
+          }
+        },
+        {
+          "key": "date_text",
+          "type": "string",
+          "label": {
+            "en": "Day as a text",
+            "fr": "Jour en toutes lettres",
+            "de": "Tag als Text",
+            "es": "Día en texto"
+          }
+        },
+        {
+          "key": "days",
+          "type": "number",
+          "label": {
+            "en": "Days until then",
+            "fr": "Jours restants",
+            "de": "Tage bis dahin",
+            "es": "Días restantes"
+          }
+        },
+        {
+          "key": "network",
+          "type": "string",
+          "label": {
+            "en": "Network of the show",
+            "fr": "Chaîne de la série",
+            "de": "Sender der Serie",
+            "es": "Cadena de la serie"
+          }
+        },
+        {
+          "key": "url",
+          "type": "string",
+          "label": {
+            "en": "Trakt page",
+            "fr": "Page Trakt",
+            "de": "Trakt-Seite",
+            "es": "Página de Trakt"
+          }
+        },
+        {
+          "key": "text",
+          "type": "string",
+          "label": {
+            "en": "Ready sentence",
+            "fr": "Phrase prête",
+            "de": "Fertiger Satz",
+            "es": "Frase lista"
+          },
+          "description": {
+            "en": "In the language of the configuration.",
+            "fr": "Dans la langue de la configuration.",
+            "de": "In der Sprache der Konfiguration.",
+            "es": "En el idioma de la configuración."
+          }
+        }
+      ]
+    },
+    {
+      "key": "date_changed",
+      "label": {
+        "en": "Trakt: date changed",
+        "fr": "Trakt : date modifiée",
+        "de": "Trakt: Termin geändert",
+        "es": "Trakt: fecha cambiada"
+      },
+      "description": {
+        "en": "The day or the time of an episode or a release to come changed.",
+        "fr": "Le jour ou l’heure d’un épisode ou d’une sortie à venir a changé.",
+        "de": "Tag oder Uhrzeit einer kommenden Folge oder Veröffentlichung hat sich geändert.",
+        "es": "Ha cambiado el día o la hora de un episodio o un estreno próximo."
+      },
+      "fields": [
+        {
+          "key": "kind",
+          "type": "multi_select",
+          "label": {
+            "en": "Kinds",
+            "fr": "Types",
+            "de": "Arten",
+            "es": "Tipos"
+          },
+          "description": {
+            "en": "Empty: every kind kept in the configuration.",
+            "fr": "Vide : tous les types gardés dans la configuration.",
+            "de": "Leer: alle in der Konfiguration behaltenen Arten.",
+            "es": "Vacío: todos los tipos conservados en la configuración."
+          },
+          "options": [
+            {
+              "value": "episode",
+              "label": {
+                "en": "Episodes of shows",
+                "fr": "Épisodes de séries",
+                "de": "Serienfolgen",
+                "es": "Episodios de series"
+              }
+            },
+            {
+              "value": "movie",
+              "label": {
+                "en": "Movie releases",
+                "fr": "Sorties de films",
+                "de": "Filmstarts",
+                "es": "Estrenos de películas"
+              }
+            },
+            {
+              "value": "streaming",
+              "label": {
+                "en": "Streaming releases of movies",
+                "fr": "Sorties de films en streaming",
+                "de": "Streaming-Starts von Filmen",
+                "es": "Estrenos de películas en streaming"
+              }
+            }
+          ]
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "label": {
+            "en": "Show or movie",
+            "fr": "Série ou film",
+            "de": "Serie oder Film",
+            "es": "Serie o película"
+          },
+          "description": {
+            "en": "Exactly as Trakt writes it (case-sensitive). Empty: any title.",
+            "fr": "Exactement comme Trakt l’écrit (majuscules comprises). Vide : tous les titres.",
+            "de": "Genau wie Trakt es schreibt (Groß-/Kleinschreibung beachten). Leer: alle Titel.",
+            "es": "Exactamente como lo escribe Trakt (distingue mayúsculas). Vacío: cualquier título."
+          },
+          "placeholder": {
+            "en": "Severance",
+            "fr": "Severance",
+            "de": "Severance",
+            "es": "Severance"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "full_title",
+          "type": "string",
+          "label": {
+            "en": "Full title",
+            "fr": "Titre complet",
+            "de": "Vollständiger Titel",
+            "es": "Título completo"
+          },
+          "description": {
+            "en": "“Severance S02E05 – Trojan’s Horse”",
+            "fr": "“Severance S02E05 – Trojan’s Horse”",
+            "de": "“Severance S02E05 – Trojan’s Horse”",
+            "es": "“Severance S02E05 – Trojan’s Horse”"
+          }
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "label": {
+            "en": "Show or movie",
+            "fr": "Série ou film",
+            "de": "Serie oder Film",
+            "es": "Serie o película"
+          }
+        },
+        {
+          "key": "episode",
+          "type": "string",
+          "label": {
+            "en": "Episode code (S02E05)",
+            "fr": "Code de l’épisode (S02E05)",
+            "de": "Folgencode (S02E05)",
+            "es": "Código del episodio (S02E05)"
+          }
+        },
+        {
+          "key": "episode_title",
+          "type": "string",
+          "label": {
+            "en": "Episode title",
+            "fr": "Titre de l’épisode",
+            "de": "Folgentitel",
+            "es": "Título del episodio"
+          }
+        },
+        {
+          "key": "kind",
+          "type": "string",
+          "label": {
+            "en": "Kind (key)",
+            "fr": "Type (clé)",
+            "de": "Art (Schlüssel)",
+            "es": "Tipo (clave)"
+          },
+          "description": {
+            "en": "episode, movie, streaming",
+            "fr": "episode, movie, streaming",
+            "de": "episode, movie, streaming",
+            "es": "episode, movie, streaming"
+          }
+        },
+        {
+          "key": "kind_name",
+          "type": "string",
+          "label": {
+            "en": "Kind",
+            "fr": "Type",
+            "de": "Art",
+            "es": "Tipo"
+          }
+        },
+        {
+          "key": "season",
+          "type": "number",
+          "label": {
+            "en": "Season",
+            "fr": "Saison",
+            "de": "Staffel",
+            "es": "Temporada"
+          }
+        },
+        {
+          "key": "number",
+          "type": "number",
+          "label": {
+            "en": "Episode number",
+            "fr": "Numéro de l’épisode",
+            "de": "Folgennummer",
+            "es": "Número del episodio"
+          }
+        },
+        {
+          "key": "premiere",
+          "type": "boolean",
+          "label": {
+            "en": "Premiere of a show or season",
+            "fr": "Première d’une série ou saison",
+            "de": "Premiere einer Serie oder Staffel",
+            "es": "Estreno de serie o temporada"
+          }
+        },
+        {
+          "key": "finale",
+          "type": "boolean",
+          "label": {
+            "en": "Finale of a show or season",
+            "fr": "Final d’une série ou saison",
+            "de": "Finale einer Serie oder Staffel",
+            "es": "Final de serie o temporada"
+          }
+        },
+        {
+          "key": "date",
+          "type": "string",
+          "label": {
+            "en": "Day (YYYY-MM-DD)",
+            "fr": "Jour (AAAA-MM-JJ)",
+            "de": "Tag (JJJJ-MM-TT)",
+            "es": "Día (AAAA-MM-DD)"
+          }
+        },
+        {
+          "key": "time",
+          "type": "string",
+          "label": {
+            "en": "Local airing time",
+            "fr": "Heure locale de diffusion",
+            "de": "Lokale Sendezeit",
+            "es": "Hora local de emisión"
+          }
+        },
+        {
+          "key": "date_text",
+          "type": "string",
+          "label": {
+            "en": "Day as a text",
+            "fr": "Jour en toutes lettres",
+            "de": "Tag als Text",
+            "es": "Día en texto"
+          }
+        },
+        {
+          "key": "days",
+          "type": "number",
+          "label": {
+            "en": "Days until then",
+            "fr": "Jours restants",
+            "de": "Tage bis dahin",
+            "es": "Días restantes"
+          }
+        },
+        {
+          "key": "network",
+          "type": "string",
+          "label": {
+            "en": "Network of the show",
+            "fr": "Chaîne de la série",
+            "de": "Sender der Serie",
+            "es": "Cadena de la serie"
+          }
+        },
+        {
+          "key": "url",
+          "type": "string",
+          "label": {
+            "en": "Trakt page",
+            "fr": "Page Trakt",
+            "de": "Trakt-Seite",
+            "es": "Página de Trakt"
+          }
+        },
+        {
+          "key": "text",
+          "type": "string",
+          "label": {
+            "en": "Ready sentence",
+            "fr": "Phrase prête",
+            "de": "Fertiger Satz",
+            "es": "Frase lista"
+          },
+          "description": {
+            "en": "In the language of the configuration.",
+            "fr": "Dans la langue de la configuration.",
+            "de": "In der Sprache der Konfiguration.",
+            "es": "En el idioma de la configuración."
+          }
+        },
+        {
+          "key": "previous_date",
+          "type": "string",
+          "label": {
+            "en": "Previous day",
+            "fr": "Jour précédent",
+            "de": "Bisheriger Tag",
+            "es": "Día anterior"
+          },
+          "description": {
+            "en": "YYYY-MM-DD.",
+            "fr": "AAAA-MM-JJ.",
+            "de": "JJJJ-MM-TT.",
+            "es": "AAAA-MM-DD."
+          }
+        },
+        {
+          "key": "previous_time",
+          "type": "string",
+          "label": {
+            "en": "Previous time",
+            "fr": "Heure précédente",
+            "de": "Bisherige Uhrzeit",
+            "es": "Hora anterior"
+          }
+        },
+        {
+          "key": "previous_date_text",
+          "type": "string",
+          "label": {
+            "en": "Previous day as a text",
+            "fr": "Jour précédent en toutes lettres",
+            "de": "Bisheriger Tag als Text",
+            "es": "Día anterior en texto"
+          }
+        }
+      ]
+    },
+    {
+      "key": "watching_started",
+      "label": {
+        "en": "Trakt: playback started",
+        "fr": "Trakt : lecture commencée",
+        "de": "Trakt: Wiedergabe gestartet",
+        "es": "Trakt: reproducción iniciada"
+      },
+      "description": {
+        "en": "The account starts watching a movie or an episode (or resumes after a pause). Needs the “Now watching” option.",
+        "fr": "Le compte commence à regarder un film ou un épisode (ou reprend après une pause). Nécessite l’option « Lecture en cours ».",
+        "de": "Das Konto beginnt einen Film oder eine Folge anzusehen (oder setzt nach einer Pause fort). Benötigt die Option „Aktuelle Wiedergabe“.",
+        "es": "La cuenta empieza a ver una película o un episodio (o reanuda tras una pausa). Requiere la opción «Reproducción en curso»."
+      },
+      "fields": [
+        {
+          "key": "kind",
+          "type": "multi_select",
+          "label": {
+            "en": "Kinds",
+            "fr": "Types",
+            "de": "Arten",
+            "es": "Tipos"
+          },
+          "description": {
+            "en": "Empty: episodes and movies.",
+            "fr": "Vide : épisodes et films.",
+            "de": "Leer: Folgen und Filme.",
+            "es": "Vacío: episodios y películas."
+          },
+          "options": [
+            {
+              "value": "episode",
+              "label": {
+                "en": "Episodes",
+                "fr": "Épisodes",
+                "de": "Folgen",
+                "es": "Episodios"
+              }
+            },
+            {
+              "value": "movie",
+              "label": {
+                "en": "Movies",
+                "fr": "Films",
+                "de": "Filme",
+                "es": "Películas"
+              }
+            }
+          ]
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "label": {
+            "en": "Show or movie",
+            "fr": "Série ou film",
+            "de": "Serie oder Film",
+            "es": "Serie o película"
+          },
+          "description": {
+            "en": "Exactly as Trakt writes it (case-sensitive). Empty: any title.",
+            "fr": "Exactement comme Trakt l’écrit (majuscules comprises). Vide : tous les titres.",
+            "de": "Genau wie Trakt es schreibt (Groß-/Kleinschreibung beachten). Leer: alle Titel.",
+            "es": "Exactamente como lo escribe Trakt (distingue mayúsculas). Vacío: cualquier título."
+          },
+          "placeholder": {
+            "en": "Severance",
+            "fr": "Severance",
+            "de": "Severance",
+            "es": "Severance"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "full_title",
+          "type": "string",
+          "label": {
+            "en": "Full title",
+            "fr": "Titre complet",
+            "de": "Vollständiger Titel",
+            "es": "Título completo"
+          }
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "label": {
+            "en": "Show or movie",
+            "fr": "Série ou film",
+            "de": "Serie oder Film",
+            "es": "Serie o película"
+          }
+        },
+        {
+          "key": "episode",
+          "type": "string",
+          "label": {
+            "en": "Episode code",
+            "fr": "Code de l’épisode",
+            "de": "Folgencode",
+            "es": "Código del episodio"
+          },
+          "description": {
+            "en": "“S02E05”; empty for a movie.",
+            "fr": "« S02E05 » ; vide pour un film.",
+            "de": "„S02E05“; leer bei einem Film.",
+            "es": "«S02E05»; vacío para una película."
+          }
+        },
+        {
+          "key": "episode_title",
+          "type": "string",
+          "label": {
+            "en": "Episode title",
+            "fr": "Titre de l’épisode",
+            "de": "Folgentitel",
+            "es": "Título del episodio"
+          }
+        },
+        {
+          "key": "kind",
+          "type": "string",
+          "label": {
+            "en": "Kind (key)",
+            "fr": "Type (clé)",
+            "de": "Art (Schlüssel)",
+            "es": "Tipo (clave)"
+          },
+          "description": {
+            "en": "episode, movie",
+            "fr": "episode, movie",
+            "de": "episode, movie",
+            "es": "episode, movie"
+          }
+        },
+        {
+          "key": "kind_name",
+          "type": "string",
+          "label": {
+            "en": "Kind",
+            "fr": "Type",
+            "de": "Art",
+            "es": "Tipo"
+          }
+        },
+        {
+          "key": "season",
+          "type": "number",
+          "label": {
+            "en": "Season",
+            "fr": "Saison",
+            "de": "Staffel",
+            "es": "Temporada"
+          }
+        },
+        {
+          "key": "number",
+          "type": "number",
+          "label": {
+            "en": "Episode number",
+            "fr": "Numéro de l’épisode",
+            "de": "Folgennummer",
+            "es": "Número del episodio"
+          }
+        },
+        {
+          "key": "year",
+          "type": "number",
+          "label": {
+            "en": "Year",
+            "fr": "Année",
+            "de": "Jahr",
+            "es": "Año"
+          }
+        },
+        {
+          "key": "started_at",
+          "type": "string",
+          "label": {
+            "en": "Start time",
+            "fr": "Heure de début",
+            "de": "Startzeit",
+            "es": "Hora de inicio"
+          },
+          "description": {
+            "en": "“20:41”",
+            "fr": "“20:41”",
+            "de": "“20:41”",
+            "es": "“20:41”"
+          }
+        },
+        {
+          "key": "ends_at",
+          "type": "string",
+          "label": {
+            "en": "Expected end time",
+            "fr": "Heure de fin prévue",
+            "de": "Voraussichtliches Ende",
+            "es": "Hora de fin prevista"
+          },
+          "description": {
+            "en": "“21:32”",
+            "fr": "“21:32”",
+            "de": "“21:32”",
+            "es": "“21:32”"
+          }
+        },
+        {
+          "key": "runtime",
+          "type": "number",
+          "label": {
+            "en": "Runtime (minutes)",
+            "fr": "Durée (minutes)",
+            "de": "Laufzeit (Minuten)",
+            "es": "Duración (minutos)"
+          }
+        },
+        {
+          "key": "url",
+          "type": "string",
+          "label": {
+            "en": "Trakt page",
+            "fr": "Page Trakt",
+            "de": "Trakt-Seite",
+            "es": "Página de Trakt"
+          }
+        },
+        {
+          "key": "text",
+          "type": "string",
+          "label": {
+            "en": "Ready sentence",
+            "fr": "Phrase prête",
+            "de": "Fertiger Satz",
+            "es": "Frase lista"
+          },
+          "description": {
+            "en": "In the language of the configuration.",
+            "fr": "Dans la langue de la configuration.",
+            "de": "In der Sprache der Konfiguration.",
+            "es": "En el idioma de la configuración."
+          }
+        }
+      ]
+    },
+    {
+      "key": "watching_stopped",
+      "label": {
+        "en": "Trakt: playback stopped",
+        "fr": "Trakt : lecture arrêtée",
+        "de": "Trakt: Wiedergabe gestoppt",
+        "es": "Trakt: reproducción detenida"
+      },
+      "description": {
+        "en": "The playback is paused, stopped or finished. Needs the “Now watching” option.",
+        "fr": "La lecture est en pause, arrêtée ou terminée. Nécessite l’option « Lecture en cours ».",
+        "de": "Die Wiedergabe ist pausiert, gestoppt oder beendet. Benötigt die Option „Aktuelle Wiedergabe“.",
+        "es": "La reproducción está en pausa, detenida o terminada. Requiere la opción «Reproducción en curso»."
+      },
+      "fields": [
+        {
+          "key": "kind",
+          "type": "multi_select",
+          "label": {
+            "en": "Kinds",
+            "fr": "Types",
+            "de": "Arten",
+            "es": "Tipos"
+          },
+          "description": {
+            "en": "Empty: episodes and movies.",
+            "fr": "Vide : épisodes et films.",
+            "de": "Leer: Folgen und Filme.",
+            "es": "Vacío: episodios y películas."
+          },
+          "options": [
+            {
+              "value": "episode",
+              "label": {
+                "en": "Episodes",
+                "fr": "Épisodes",
+                "de": "Folgen",
+                "es": "Episodios"
+              }
+            },
+            {
+              "value": "movie",
+              "label": {
+                "en": "Movies",
+                "fr": "Films",
+                "de": "Filme",
+                "es": "Películas"
+              }
+            }
+          ]
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "label": {
+            "en": "Show or movie",
+            "fr": "Série ou film",
+            "de": "Serie oder Film",
+            "es": "Serie o película"
+          },
+          "description": {
+            "en": "Exactly as Trakt writes it (case-sensitive). Empty: any title.",
+            "fr": "Exactement comme Trakt l’écrit (majuscules comprises). Vide : tous les titres.",
+            "de": "Genau wie Trakt es schreibt (Groß-/Kleinschreibung beachten). Leer: alle Titel.",
+            "es": "Exactamente como lo escribe Trakt (distingue mayúsculas). Vacío: cualquier título."
+          },
+          "placeholder": {
+            "en": "Severance",
+            "fr": "Severance",
+            "de": "Severance",
+            "es": "Severance"
+          }
+        },
+        {
+          "key": "finished",
+          "type": "select",
+          "label": {
+            "en": "End reached",
+            "fr": "Fin atteinte",
+            "de": "Ende erreicht",
+            "es": "Final alcanzado"
+          },
+          "description": {
+            "en": "Empty: both.",
+            "fr": "Vide : les deux.",
+            "de": "Leer: beides.",
+            "es": "Vacío: ambos."
+          },
+          "options": [
+            {
+              "value": "true",
+              "label": {
+                "en": "Finished (end of the runtime)",
+                "fr": "Terminé (fin de la durée)",
+                "de": "Beendet (Ende der Laufzeit)",
+                "es": "Terminado (fin de la duración)"
+              }
+            },
+            {
+              "value": "false",
+              "label": {
+                "en": "Paused or stopped before the end",
+                "fr": "En pause ou arrêté avant la fin",
+                "de": "Vor dem Ende pausiert oder gestoppt",
+                "es": "En pausa o detenido antes del final"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "full_title",
+          "type": "string",
+          "label": {
+            "en": "Full title",
+            "fr": "Titre complet",
+            "de": "Vollständiger Titel",
+            "es": "Título completo"
+          }
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "label": {
+            "en": "Show or movie",
+            "fr": "Série ou film",
+            "de": "Serie oder Film",
+            "es": "Serie o película"
+          }
+        },
+        {
+          "key": "episode",
+          "type": "string",
+          "label": {
+            "en": "Episode code",
+            "fr": "Code de l’épisode",
+            "de": "Folgencode",
+            "es": "Código del episodio"
+          },
+          "description": {
+            "en": "“S02E05”; empty for a movie.",
+            "fr": "« S02E05 » ; vide pour un film.",
+            "de": "„S02E05“; leer bei einem Film.",
+            "es": "«S02E05»; vacío para una película."
+          }
+        },
+        {
+          "key": "episode_title",
+          "type": "string",
+          "label": {
+            "en": "Episode title",
+            "fr": "Titre de l’épisode",
+            "de": "Folgentitel",
+            "es": "Título del episodio"
+          }
+        },
+        {
+          "key": "kind",
+          "type": "string",
+          "label": {
+            "en": "Kind (key)",
+            "fr": "Type (clé)",
+            "de": "Art (Schlüssel)",
+            "es": "Tipo (clave)"
+          },
+          "description": {
+            "en": "episode, movie",
+            "fr": "episode, movie",
+            "de": "episode, movie",
+            "es": "episode, movie"
+          }
+        },
+        {
+          "key": "kind_name",
+          "type": "string",
+          "label": {
+            "en": "Kind",
+            "fr": "Type",
+            "de": "Art",
+            "es": "Tipo"
+          }
+        },
+        {
+          "key": "season",
+          "type": "number",
+          "label": {
+            "en": "Season",
+            "fr": "Saison",
+            "de": "Staffel",
+            "es": "Temporada"
+          }
+        },
+        {
+          "key": "number",
+          "type": "number",
+          "label": {
+            "en": "Episode number",
+            "fr": "Numéro de l’épisode",
+            "de": "Folgennummer",
+            "es": "Número del episodio"
+          }
+        },
+        {
+          "key": "year",
+          "type": "number",
+          "label": {
+            "en": "Year",
+            "fr": "Année",
+            "de": "Jahr",
+            "es": "Año"
+          }
+        },
+        {
+          "key": "started_at",
+          "type": "string",
+          "label": {
+            "en": "Start time",
+            "fr": "Heure de début",
+            "de": "Startzeit",
+            "es": "Hora de inicio"
+          },
+          "description": {
+            "en": "“20:41”",
+            "fr": "“20:41”",
+            "de": "“20:41”",
+            "es": "“20:41”"
+          }
+        },
+        {
+          "key": "ends_at",
+          "type": "string",
+          "label": {
+            "en": "Expected end time",
+            "fr": "Heure de fin prévue",
+            "de": "Voraussichtliches Ende",
+            "es": "Hora de fin prevista"
+          },
+          "description": {
+            "en": "“21:32”",
+            "fr": "“21:32”",
+            "de": "“21:32”",
+            "es": "“21:32”"
+          }
+        },
+        {
+          "key": "runtime",
+          "type": "number",
+          "label": {
+            "en": "Runtime (minutes)",
+            "fr": "Durée (minutes)",
+            "de": "Laufzeit (Minuten)",
+            "es": "Duración (minutos)"
+          }
+        },
+        {
+          "key": "url",
+          "type": "string",
+          "label": {
+            "en": "Trakt page",
+            "fr": "Page Trakt",
+            "de": "Trakt-Seite",
+            "es": "Página de Trakt"
+          }
+        },
+        {
+          "key": "finished",
+          "type": "string",
+          "label": {
+            "en": "End reached",
+            "fr": "Fin atteinte",
+            "de": "Ende erreicht",
+            "es": "Final alcanzado"
+          },
+          "description": {
+            "en": "true, false",
+            "fr": "true, false",
+            "de": "true, false",
+            "es": "true, false"
+          }
+        },
+        {
+          "key": "minutes",
+          "type": "number",
+          "label": {
+            "en": "Minutes watched",
+            "fr": "Minutes regardées",
+            "de": "Gesehene Minuten",
+            "es": "Minutos vistos"
+          }
+        },
+        {
+          "key": "text",
+          "type": "string",
+          "label": {
+            "en": "Ready sentence",
+            "fr": "Phrase prête",
+            "de": "Fertiger Satz",
+            "es": "Frase lista"
+          },
+          "description": {
+            "en": "In the language of the configuration.",
+            "fr": "Dans la langue de la configuration.",
+            "de": "In der Sprache der Konfiguration.",
+            "es": "En el idioma de la configuración."
+          }
+        }
+      ]
+    },
+    {
+      "key": "account_disconnected",
+      "label": {
+        "en": "Trakt: account to link again",
+        "fr": "Trakt : compte à relier",
+        "de": "Trakt: Konto erneut verknüpfen",
+        "es": "Trakt: cuenta por vincular"
+      },
+      "description": {
+        "en": "Trakt refuses the sign-in (app deleted, access revoked, Gladys off for too long): click Connect again.",
+        "fr": "Trakt refuse la connexion (app supprimée, accès révoqué, Gladys éteinte trop longtemps) : cliquez de nouveau sur Connecter.",
+        "de": "Trakt lehnt die Anmeldung ab (App gelöscht, Zugriff widerrufen, Gladys zu lange aus): Klicken Sie erneut auf Verbinden.",
+        "es": "Trakt rechaza la sesión (app eliminada, acceso revocado, Gladys apagada demasiado tiempo): pulse de nuevo Conectar."
+      },
+      "variables": [
+        {
+          "key": "text",
+          "type": "string",
+          "label": {
+            "en": "Ready sentence",
+            "fr": "Phrase prête",
+            "de": "Fertiger Satz",
+            "es": "Frase lista"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "get_next",
+      "timeout_seconds": 10,
+      "label": {
+        "en": "Trakt: next episode or release",
+        "fr": "Trakt : prochain épisode ou sortie",
+        "de": "Trakt: nächste Folge oder Veröffentlichung",
+        "es": "Trakt: próximo episodio o estreno"
+      },
+      "description": {
+        "en": "The next item of your Trakt calendar, to put in a message or to speak.",
+        "fr": "Le prochain élément de votre calendrier Trakt, à mettre dans un message ou à faire dire.",
+        "de": "Der nächste Eintrag Ihres Trakt-Kalenders, für eine Nachricht oder eine Ansage.",
+        "es": "El próximo elemento de su calendario de Trakt, para un mensaje o para decirlo en voz alta."
+      },
+      "fields": [
+        {
+          "key": "kind",
+          "type": "multi_select",
+          "label": {
+            "en": "Kinds",
+            "fr": "Types",
+            "de": "Arten",
+            "es": "Tipos"
+          },
+          "description": {
+            "en": "Empty: every kind kept in the configuration.",
+            "fr": "Vide : tous les types gardés dans la configuration.",
+            "de": "Leer: alle in der Konfiguration behaltenen Arten.",
+            "es": "Vacío: todos los tipos conservados en la configuración."
+          },
+          "options": [
+            {
+              "value": "episode",
+              "label": {
+                "en": "Episodes of shows",
+                "fr": "Épisodes de séries",
+                "de": "Serienfolgen",
+                "es": "Episodios de series"
+              }
+            },
+            {
+              "value": "movie",
+              "label": {
+                "en": "Movie releases",
+                "fr": "Sorties de films",
+                "de": "Filmstarts",
+                "es": "Estrenos de películas"
+              }
+            },
+            {
+              "value": "streaming",
+              "label": {
+                "en": "Streaming releases of movies",
+                "fr": "Sorties de films en streaming",
+                "de": "Streaming-Starts von Filmen",
+                "es": "Estrenos de películas en streaming"
+              }
+            }
+          ]
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "label": {
+            "en": "Show or movie",
+            "fr": "Série ou film",
+            "de": "Serie oder Film",
+            "es": "Serie o película"
+          },
+          "description": {
+            "en": "Its title on Trakt (case does not matter). Empty: any title.",
+            "fr": "Son titre sur Trakt (sans tenir compte des majuscules). Vide : tous les titres.",
+            "de": "Der Titel auf Trakt (Groß-/Kleinschreibung egal). Leer: alle Titel.",
+            "es": "Su título en Trakt (sin distinguir mayúsculas). Vacío: cualquier título."
+          },
+          "placeholder": {
+            "en": "Severance",
+            "fr": "Severance",
+            "de": "Severance",
+            "es": "Severance"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "found",
+          "type": "boolean",
+          "label": {
+            "en": "Something was found",
+            "fr": "Un élément a été trouvé",
+            "de": "Etwas wurde gefunden",
+            "es": "Se encontró algo"
+          }
+        },
+        {
+          "key": "full_title",
+          "type": "string",
+          "label": {
+            "en": "Full title",
+            "fr": "Titre complet",
+            "de": "Vollständiger Titel",
+            "es": "Título completo"
+          },
+          "description": {
+            "en": "“Severance S02E05 – Trojan’s Horse”",
+            "fr": "“Severance S02E05 – Trojan’s Horse”",
+            "de": "“Severance S02E05 – Trojan’s Horse”",
+            "es": "“Severance S02E05 – Trojan’s Horse”"
+          }
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "label": {
+            "en": "Show or movie",
+            "fr": "Série ou film",
+            "de": "Serie oder Film",
+            "es": "Serie o película"
+          }
+        },
+        {
+          "key": "episode",
+          "type": "string",
+          "label": {
+            "en": "Episode code (S02E05)",
+            "fr": "Code de l’épisode (S02E05)",
+            "de": "Folgencode (S02E05)",
+            "es": "Código del episodio (S02E05)"
+          }
+        },
+        {
+          "key": "episode_title",
+          "type": "string",
+          "label": {
+            "en": "Episode title",
+            "fr": "Titre de l’épisode",
+            "de": "Folgentitel",
+            "es": "Título del episodio"
+          }
+        },
+        {
+          "key": "kind",
+          "type": "string",
+          "label": {
+            "en": "Kind (key)",
+            "fr": "Type (clé)",
+            "de": "Art (Schlüssel)",
+            "es": "Tipo (clave)"
+          },
+          "description": {
+            "en": "episode, movie, streaming",
+            "fr": "episode, movie, streaming",
+            "de": "episode, movie, streaming",
+            "es": "episode, movie, streaming"
+          }
+        },
+        {
+          "key": "kind_name",
+          "type": "string",
+          "label": {
+            "en": "Kind",
+            "fr": "Type",
+            "de": "Art",
+            "es": "Tipo"
+          }
+        },
+        {
+          "key": "date",
+          "type": "string",
+          "label": {
+            "en": "Day (YYYY-MM-DD)",
+            "fr": "Jour (AAAA-MM-JJ)",
+            "de": "Tag (JJJJ-MM-TT)",
+            "es": "Día (AAAA-MM-DD)"
+          }
+        },
+        {
+          "key": "time",
+          "type": "string",
+          "label": {
+            "en": "Local airing time",
+            "fr": "Heure locale de diffusion",
+            "de": "Lokale Sendezeit",
+            "es": "Hora local de emisión"
+          }
+        },
+        {
+          "key": "date_text",
+          "type": "string",
+          "label": {
+            "en": "Day as a text",
+            "fr": "Jour en toutes lettres",
+            "de": "Tag als Text",
+            "es": "Día en texto"
+          }
+        },
+        {
+          "key": "days",
+          "type": "number",
+          "label": {
+            "en": "Days until then",
+            "fr": "Jours restants",
+            "de": "Tage bis dahin",
+            "es": "Días restantes"
+          },
+          "description": {
+            "en": "-1 when nothing was found.",
+            "fr": "-1 si rien n’a été trouvé.",
+            "de": "-1, wenn nichts gefunden wurde.",
+            "es": "-1 si no se encontró nada."
+          }
+        },
+        {
+          "key": "url",
+          "type": "string",
+          "label": {
+            "en": "Trakt page",
+            "fr": "Page Trakt",
+            "de": "Trakt-Seite",
+            "es": "Página de Trakt"
+          }
+        },
+        {
+          "key": "text",
+          "type": "string",
+          "label": {
+            "en": "Ready sentence",
+            "fr": "Phrase prête",
+            "de": "Fertiger Satz",
+            "es": "Frase lista"
+          },
+          "description": {
+            "en": "In the language of the configuration.",
+            "fr": "Dans la langue de la configuration.",
+            "de": "In der Sprache der Konfiguration.",
+            "es": "En el idioma de la configuración."
+          }
+        }
+      ]
+    },
+    {
+      "key": "add_to_watchlist",
+      "timeout_seconds": 30,
+      "label": {
+        "en": "Trakt: add to the watchlist",
+        "fr": "Trakt : ajouter à la watchlist",
+        "de": "Trakt: zur Watchlist hinzufügen",
+        "es": "Trakt: añadir a la watchlist"
+      },
+      "description": {
+        "en": "Adds a movie or a show to the watchlist of the Trakt account. Its episodes and releases then join the calendar.",
+        "fr": "Ajoute un film ou une série à la watchlist du compte Trakt. Ses épisodes et sorties rejoignent ensuite le calendrier.",
+        "de": "Fügt einen Film oder eine Serie zur Watchlist des Trakt-Kontos hinzu. Folgen und Starts erscheinen danach im Kalender.",
+        "es": "Añade una película o una serie a la watchlist de la cuenta de Trakt. Sus episodios y estrenos pasan después al calendario."
+      },
+      "fields": [
+        {
+          "key": "type",
+          "type": "select",
+          "required": true,
+          "default": "movie",
+          "label": {
+            "en": "Kind",
+            "fr": "Type",
+            "de": "Art",
+            "es": "Tipo"
+          },
+          "options": [
+            {
+              "value": "movie",
+              "label": {
+                "en": "Movie",
+                "fr": "Film",
+                "de": "Film",
+                "es": "Película"
+              }
+            },
+            {
+              "value": "show",
+              "label": {
+                "en": "Show",
+                "fr": "Série",
+                "de": "Serie",
+                "es": "Serie"
+              }
+            }
+          ]
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "required": true,
+          "label": {
+            "en": "Title",
+            "fr": "Titre",
+            "de": "Titel",
+            "es": "Título"
+          },
+          "description": {
+            "en": "A title (“Dune”, “Dune (2021)”), an IMDb identifier (“tt1160419”) or the address of its page on trakt.tv.",
+            "fr": "Un titre (« Dune », « Dune (2021) »), un identifiant IMDb (« tt1160419 ») ou l’adresse de sa page sur trakt.tv.",
+            "de": "Ein Titel („Dune“, „Dune (2021)“), eine IMDb-Kennung („tt1160419“) oder die Adresse der Seite auf trakt.tv.",
+            "es": "Un título («Dune», «Dune (2021)»), un identificador de IMDb («tt1160419») o la dirección de su página en trakt.tv."
+          },
+          "placeholder": {
+            "en": "Dune (2021)",
+            "fr": "Dune (2021)",
+            "de": "Dune (2021)",
+            "es": "Dune (2021)"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "done",
+          "type": "boolean",
+          "label": {
+            "en": "Written on Trakt",
+            "fr": "Écrit sur Trakt",
+            "de": "Auf Trakt geschrieben",
+            "es": "Escrito en Trakt"
+          },
+          "description": {
+            "en": "False when nothing changed (already there, not found, limit).",
+            "fr": "Faux si rien n’a changé (déjà présent, introuvable, limite).",
+            "de": "Falsch, wenn sich nichts geändert hat (bereits vorhanden, nicht gefunden, Limit).",
+            "es": "Falso si nada cambió (ya estaba, no encontrado, límite)."
+          }
+        },
+        {
+          "key": "status",
+          "type": "string",
+          "label": {
+            "en": "Outcome (key)",
+            "fr": "Résultat (clé)",
+            "de": "Ergebnis (Schlüssel)",
+            "es": "Resultado (clave)"
+          },
+          "description": {
+            "en": "added, existing, marked, already, not_found, no_next, limit",
+            "fr": "added, existing, marked, already, not_found, no_next, limit",
+            "de": "added, existing, marked, already, not_found, no_next, limit",
+            "es": "added, existing, marked, already, not_found, no_next, limit"
+          }
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "label": {
+            "en": "Title found",
+            "fr": "Titre trouvé",
+            "de": "Gefundener Titel",
+            "es": "Título encontrado"
+          }
+        },
+        {
+          "key": "year",
+          "type": "number",
+          "label": {
+            "en": "Year",
+            "fr": "Année",
+            "de": "Jahr",
+            "es": "Año"
+          },
+          "description": {
+            "en": "-1 when unknown.",
+            "fr": "-1 si inconnue.",
+            "de": "-1, wenn unbekannt.",
+            "es": "-1 si se desconoce."
+          }
+        },
+        {
+          "key": "url",
+          "type": "string",
+          "label": {
+            "en": "Trakt page",
+            "fr": "Page Trakt",
+            "de": "Trakt-Seite",
+            "es": "Página de Trakt"
+          }
+        },
+        {
+          "key": "text",
+          "type": "string",
+          "label": {
+            "en": "Ready sentence",
+            "fr": "Phrase prête",
+            "de": "Fertiger Satz",
+            "es": "Frase lista"
+          },
+          "description": {
+            "en": "In the language of the configuration.",
+            "fr": "Dans la langue de la configuration.",
+            "de": "In der Sprache der Konfiguration.",
+            "es": "En el idioma de la configuración."
+          }
+        }
+      ]
+    },
+    {
+      "key": "mark_watched",
+      "timeout_seconds": 30,
+      "label": {
+        "en": "Trakt: mark as watched",
+        "fr": "Trakt : marquer comme vu",
+        "de": "Trakt: als gesehen markieren",
+        "es": "Trakt: marcar como visto"
+      },
+      "description": {
+        "en": "Adds a movie, or the next episode of a show in progress, to the watch history of the Trakt account. The same title is not marked twice within an hour.",
+        "fr": "Ajoute un film, ou le prochain épisode d’une série en cours, à l’historique du compte Trakt. Un même titre n’est pas marqué deux fois en une heure.",
+        "de": "Fügt einen Film oder die nächste Folge einer laufenden Serie zum Verlauf des Trakt-Kontos hinzu. Derselbe Titel wird nicht zweimal innerhalb einer Stunde markiert.",
+        "es": "Añade una película, o el próximo episodio de una serie en curso, al historial de la cuenta de Trakt. Un mismo título no se marca dos veces en una hora."
+      },
+      "fields": [
+        {
+          "key": "type",
+          "type": "select",
+          "required": true,
+          "default": "next_episode",
+          "label": {
+            "en": "What",
+            "fr": "Quoi",
+            "de": "Was",
+            "es": "Qué"
+          },
+          "options": [
+            {
+              "value": "next_episode",
+              "label": {
+                "en": "Next episode of a show in progress",
+                "fr": "Prochain épisode d’une série en cours",
+                "de": "Nächste Folge einer laufenden Serie",
+                "es": "Próximo episodio de una serie en curso"
+              }
+            },
+            {
+              "value": "movie",
+              "label": {
+                "en": "Movie",
+                "fr": "Film",
+                "de": "Film",
+                "es": "Película"
+              }
+            }
+          ]
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "required": true,
+          "label": {
+            "en": "Title",
+            "fr": "Titre",
+            "de": "Titel",
+            "es": "Título"
+          },
+          "description": {
+            "en": "For an episode: the show, as the “Shows in progress” widget writes it. For a movie: a title (“Dune (2021)”), an IMDb identifier or its trakt.tv address.",
+            "fr": "Pour un épisode : la série, telle que le widget « Séries en cours » l’écrit. Pour un film : un titre (« Dune (2021) »), un identifiant IMDb ou son adresse trakt.tv.",
+            "de": "Für eine Folge: die Serie, wie das Widget „Laufende Serien“ sie schreibt. Für einen Film: ein Titel („Dune (2021)“), eine IMDb-Kennung oder die trakt.tv-Adresse.",
+            "es": "Para un episodio: la serie, como la escribe el widget «Series en curso». Para una película: un título («Dune (2021)»), un identificador de IMDb o su dirección de trakt.tv."
+          },
+          "placeholder": {
+            "en": "Severance",
+            "fr": "Severance",
+            "de": "Severance",
+            "es": "Severance"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "done",
+          "type": "boolean",
+          "label": {
+            "en": "Written on Trakt",
+            "fr": "Écrit sur Trakt",
+            "de": "Auf Trakt geschrieben",
+            "es": "Escrito en Trakt"
+          },
+          "description": {
+            "en": "False when nothing changed (already there, not found, limit).",
+            "fr": "Faux si rien n’a changé (déjà présent, introuvable, limite).",
+            "de": "Falsch, wenn sich nichts geändert hat (bereits vorhanden, nicht gefunden, Limit).",
+            "es": "Falso si nada cambió (ya estaba, no encontrado, límite)."
+          }
+        },
+        {
+          "key": "status",
+          "type": "string",
+          "label": {
+            "en": "Outcome (key)",
+            "fr": "Résultat (clé)",
+            "de": "Ergebnis (Schlüssel)",
+            "es": "Resultado (clave)"
+          },
+          "description": {
+            "en": "added, existing, marked, already, not_found, no_next, limit",
+            "fr": "added, existing, marked, already, not_found, no_next, limit",
+            "de": "added, existing, marked, already, not_found, no_next, limit",
+            "es": "added, existing, marked, already, not_found, no_next, limit"
+          }
+        },
+        {
+          "key": "title",
+          "type": "string",
+          "label": {
+            "en": "Title found",
+            "fr": "Titre trouvé",
+            "de": "Gefundener Titel",
+            "es": "Título encontrado"
+          }
+        },
+        {
+          "key": "year",
+          "type": "number",
+          "label": {
+            "en": "Year",
+            "fr": "Année",
+            "de": "Jahr",
+            "es": "Año"
+          },
+          "description": {
+            "en": "-1 when unknown.",
+            "fr": "-1 si inconnue.",
+            "de": "-1, wenn unbekannt.",
+            "es": "-1 si se desconoce."
+          }
+        },
+        {
+          "key": "url",
+          "type": "string",
+          "label": {
+            "en": "Trakt page",
+            "fr": "Page Trakt",
+            "de": "Trakt-Seite",
+            "es": "Página de Trakt"
+          }
+        },
+        {
+          "key": "text",
+          "type": "string",
+          "label": {
+            "en": "Ready sentence",
+            "fr": "Phrase prête",
+            "de": "Fertiger Satz",
+            "es": "Frase lista"
+          },
+          "description": {
+            "en": "In the language of the configuration.",
+            "fr": "Dans la langue de la configuration.",
+            "de": "In der Sprache der Konfiguration.",
+            "es": "En el idioma de la configuración."
+          }
+        }
+      ]
+    }
+  ]
+}
